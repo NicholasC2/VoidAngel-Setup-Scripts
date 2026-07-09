@@ -30,7 +30,7 @@ setupWings() {
     local dir="/usr/share/va-wings"
     
     run_install() {
-        sudo mkdir -p "$dir/config"
+        sudo mkdir -p $dir
         cd "$dir" || exit
 
         cat << EOF | sudo tee "./docker-compose.yml" > /dev/null
@@ -69,7 +69,6 @@ EOF
         esac
     else
         echo "Installing wings in $dir..."
-        mkdir -p "$dir"
         run_install
     fi
 }
@@ -78,7 +77,7 @@ setupPanel() {
     local dir="/usr/share/va-panel"
     
     run_install() {
-        sudo mkdir -p "$dir/config"
+        sudo mkdir -p $dir
         cd "$dir" || exit
 
         read -p "App URL? " APP_URL
@@ -145,13 +144,12 @@ EOF
         esac
     else
         echo "Installing panel in $dir..."
-        mkdir -p "$dir"
         run_install
     fi
 }
 
 echo "--- VoidAngel Pelican Setup ---"
-echo "v0.1"
+echo "v0.2"
 
 setupDocker
 
