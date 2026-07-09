@@ -30,10 +30,10 @@ setupWings() {
     local dir="/usr/share/va-wings"
     
     run_install() {
-        mkdir -p "$dir/config"
+        sudo mkdir -p "$dir/config"
         cd "$dir" || exit
 
-        cat << EOF > "./docker-compose.yml"
+        cat << EOF | sudo tee "./docker-compose.yml" > /dev/null
 services:
   wings:
     image: ghcr.io/pelican-dev/wings:latest
@@ -78,7 +78,7 @@ setupPanel() {
     local dir="/usr/share/va-panel"
     
     run_install() {
-        mkdir -p "$dir/config"
+        sudo mkdir -p "$dir/config"
         cd "$dir" || exit
 
         read -p "App URL? " APP_URL
@@ -92,7 +92,7 @@ setupPanel() {
             port_config="      - 80:80"
         fi
 
-        cat << EOF > "./docker-compose.yml"
+        cat << EOF | sudo tee "./docker-compose.yml" > /dev/null
 services:
   panel:
     image: ghcr.io/pelican-dev/panel:latest
