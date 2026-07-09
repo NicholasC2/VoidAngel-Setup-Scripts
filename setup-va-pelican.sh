@@ -151,6 +151,7 @@ EOF
 }
 
 echo "--- VoidAngel Pelican Setup ---"
+echo "v0.1"
 
 setupDocker
 
