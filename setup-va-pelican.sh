@@ -42,12 +42,15 @@ EOF
         case "$action" in
             [Uu]* ) 
                 echo "Updating..."
-                run_install 
+                run_install
                 ;;
             [Rr]* ) 
                 echo "Reinstalling..."
+                cd "$dir"
+                docker compose down
+                cd ..
                 sudo rm -rf "$dir"
-                run_install 
+                run_install
                 ;;
             * ) echo "Skipping." ;;
         esac
@@ -115,12 +118,15 @@ EOF
         case "$action" in
             [Uu]* ) 
                 echo "Updating..."
-                run_install 
+                run_install
                 ;;
             [Rr]* ) 
                 echo "Reinstalling..."
+                cd "$dir"
+                docker compose down
+                cd ..
                 sudo rm -rf "$dir"
-                run_install 
+                run_install
                 ;;
             * ) echo "Skipping." ;;
         esac
