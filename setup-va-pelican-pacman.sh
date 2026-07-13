@@ -1,36 +1,30 @@
 #!/bin/bash
 
-BASE_DIR="/usr/share"
+BASE_DIR="$HOME"
 
 setupDocker() {
     if ! command -v docker >/dev/null 2>&1 || ! docker compose version >/dev/null 2>&1; then
-        echo "Docker or Docker Compose plugin not found. Installing/Repairing..."
+        echo "Docker or Docker Compose plugin not found. Installing..."
 
-        sudo apt-get update
-        sudo apt-get install -y ca-certificates curl
-        sudo install -m 0755 -d /etc/apt/keyrings
-        
-        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-        sudo chmod a+r /etc/apt/keyrings/docker.asc
-        
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        
-        sudo apt-get update
-        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-        
-        echo "Docker and Compose plugin installed successfully."
+        sudo pacman -Sy --noconfirm
+
+        sudo pacman -S --noconfirm \
+            docker \
+            docker-compose
+
+        sudo systemctl enable --now docker
+
+        echo "Docker and Docker Compose installed successfully."
     else
-        echo "Docker and Docker Compose plugin are already installed and functional."
+        echo "Docker and Docker Compose are already installed and functional."
     fi
 }
 
 setupWings() {
     local dir="/usr/share/va-wings"
-    
+
     run_install() {
-        sudo mkdir -p $dir
+        sudo mkdir -p "$dir"
         cd "$dir" || exit
 
         cat << EOF | sudo tee "./docker-compose.yml" > /dev/null
@@ -45,27 +39,30 @@ services:
       - ./config:/etc/pelican
       - /var/lib/pelican/volumes:/var/lib/pelican/volumes
 EOF
-        
+
         sudo docker compose pull
         sudo docker compose up -d
     }
 
     if [ -d "$dir" ] && [ -f "$dir/docker-compose.yml" ]; then
         read -p "Wings already exists. [U]pdate or [R]einstall? " action
+
         case "$action" in
-            [Uu]* ) 
+            [Uu]*)
                 echo "Updating..."
                 run_install
                 ;;
-            [Rr]* ) 
+            [Rr]*)
                 echo "Reinstalling..."
                 cd "$dir"
-                docker compose down
+                sudo docker compose down
                 cd ..
                 sudo rm -rf "$dir"
                 run_install
                 ;;
-            * ) echo "Skipping." ;;
+            *)
+                echo "Skipping."
+                ;;
         esac
     else
         echo "Installing wings in $dir..."
@@ -75,9 +72,9 @@ EOF
 
 setupPanel() {
     local dir="/usr/share/va-panel"
-    
+
     run_install() {
-        sudo mkdir -p $dir
+        sudo mkdir -p "$dir"
         cd "$dir" || exit
 
         read -p "App URL? " APP_URL
@@ -120,27 +117,30 @@ networks:
       config:
         - subnet: 172.20.0.0/16
 EOF
-        
+
         sudo docker compose pull
         sudo docker compose up -d
     }
 
     if [ -d "$dir" ] && [ -f "$dir/docker-compose.yml" ]; then
         read -p "Panel already exists. [U]pdate or [R]einstall? " action
+
         case "$action" in
-            [Uu]* ) 
+            [Uu]*)
                 echo "Updating..."
                 run_install
                 ;;
-            [Rr]* ) 
+            [Rr]*)
                 echo "Reinstalling..."
                 cd "$dir"
-                docker compose down
+                sudo docker compose down
                 cd ..
                 sudo rm -rf "$dir"
                 run_install
                 ;;
-            * ) echo "Skipping." ;;
+            *)
+                echo "Skipping."
+                ;;
         esac
     else
         echo "Installing panel in $dir..."
@@ -148,14 +148,15 @@ EOF
     fi
 }
 
+
 echo "--- VoidAngel Pelican Setup ---"
-echo "v0.3"
+echo "v0.3 (Arch/pacman)"
 
 setupDocker
 
 read -p "Install type (panel|wings): " INSTALL_TYPE
 
-case $INSTALL_TYPE in
+case "$INSTALL_TYPE" in
     panel)
         setupPanel
         ;;
